@@ -23,7 +23,7 @@
           <v-icon small>mdi-file-document-multiple</v-icon>
         </v-btn>
       </v-col>
-      <v-col>
+      <v-col class="d-flex justify-end">
         <v-btn color="light-blue darken-4" small @click="reportNum+=1" v-show="dialog">
           <JsonExcel
           :data="reports"
@@ -46,8 +46,9 @@
             <v-col>              
               Отчет №{{ n+1 }} {{ item.type }}
             </v-col>
-            <v-col>
-              В период с {{ item.start }} по {{ item.end }}
+            <v-col class='d-flex felx-column'>
+              <span>В период с {{ item.start }}</span>
+              <span>по {{ item.end }}</span>               
             </v-col>
             <v-col>
               {{ calculateReport(item.type, item.workouts) }}

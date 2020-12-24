@@ -11,17 +11,17 @@
         <v-card-title class="light-blue darken-4">
           Добавить тренера
         </v-card-title>
-        
+
         <div class="px-4">
-            <form @submit="AddCoach(fullName, experience )">
+          <form @submit.prevent="AddCoach(fullName, experience)">
             <v-text-field v-model="fullName" label="ФИО тренера"></v-text-field>
             <v-text-field v-model="experience" label="Опыт работы"></v-text-field>
             <v-btn color="indigo lighten-1" dark type="submit" @click="dialog = false">
-                Создать
+              Создать
             </v-btn>
-            </form>
+          </form>
         </div>
-        <br>
+        <br />
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -34,24 +34,23 @@
   </div>
 </template>
 
-
 <script>
-import { db } from '../main'
+import { db } from '../main';
 
 export default {
-  data () {
+  data() {
     return {
       dialog: false,
-        // coaches: [],
+      // coaches: [],
       fullName: '',
-      experience: ''
-    }
+      experience: '',
+    };
   },
   methods: {
-  AddCoach (fullName, experience) {
-    const createdAt = new Date();
-    db.collection('coaches').add({ fullName, experience, createdAt });
-    }
-  }
-}
+    AddCoach(fullName, experience) {
+      const createdAt = new Date();
+      db.collection('coaches').add({ fullName, experience, createdAt });
+    },
+  },
+};
 </script>

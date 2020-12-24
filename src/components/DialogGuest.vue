@@ -11,19 +11,19 @@
         <v-card-title class="light-blue darken-4">
           Добавить посетителя
         </v-card-title>
-        
+
         <div class="px-4">
-            <form @submit="addGuest(fullName, birth, doctor, certificateEnd)">
+          <form @submit.prevent="addGuest(fullName, birth, doctor, certificateEnd)">
             <v-text-field v-model="fullName" label="ФИО посетителя"></v-text-field>
             <v-text-field v-model="birth" type="date" label="Дата рождения"></v-text-field>
             <v-text-field v-model="doctor" label="ФИО доктора"></v-text-field>
             <v-text-field v-model="certificateEnd" type="date" label="Окончание действия справки"></v-text-field>
             <v-btn color="indigo lighten-1" dark type="submit" @click="dialog = false">
-                Создать
+              Создать
             </v-btn>
-            </form>
+          </form>
         </div>
-        <br>
+        <br />
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -34,30 +34,34 @@
       </v-card>
     </v-dialog>
   </div>
-  <!-- Курносенко Анна Дмитриевна" "Валилуев Дмитрий Сергеевич" -->
 </template>
 
-
 <script>
-import { db } from '../main'
+import { db } from '../main';
 
 export default {
-  data () {
+  data() {
     return {
       dialog: false,
       fullName: '',
       birth: '',
       doctor: '',
-      certificateEnd: ''
-    }
+      certificateEnd: '',
+    };
   },
   methods: {
     addGuest(fullName, birth, doctor, certificateEnd) {
       const createdAt = new Date();
-      birth = new Date(birth+'T00:00:00Z');
-      certificateEnd = new Date(certificateEnd+'T00:00:00Z');
-      db.collection('clients').add({ fullName, birth, doctor, certificateEnd, createdAt });
-    }
-  }
-}
+      birth = new Date(birth + 'T00:00:00Z');
+      certificateEnd = new Date(certificateEnd + 'T00:00:00Z');
+      db.collection('clients').add({
+        fullName,
+        birth,
+        doctor,
+        certificateEnd,
+        createdAt,
+      });
+    },
+  },
+};
 </script>
