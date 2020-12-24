@@ -1,44 +1,37 @@
 <template>
   <div>
-    <v-combobox 
-      @input="UpdateCoach"
-      v-model="select"
-      :items="coachNames"
-      label="Выберите тренера"
-      outlined
-      dense
-    ></v-combobox>
+    <v-combobox @input="UpdateCoach" v-model="select" :items="coachNames" label="Выберите тренера" outlined dense></v-combobox>
   </div>
 </template>
 
 <script>
-import { db } from '@/main'
+import { db } from '@/main';
 
 export default {
-  data () {
+  data() {
     return {
       select: '',
-      coaches: []
-    }
+      coaches: [],
+    };
   },
-  firestore () {
+  firestore() {
     return {
-      coaches: db.collection('coaches')
-    }
+      coaches: db.collection('coaches'),
+    };
   },
   computed: {
-    coachNames: function () {
+    coachNames: function() {
       return this.coaches.map(function(item) {
         return item.fullName;
       });
-    }
+    },
   },
   methods: {
     UpdateCoach() {
       this.$emit('updateParent', {
-        coach: this.select
-      })
-    }
-  }
-}
+        coach: this.select,
+      });
+    },
+  },
+};
 </script>

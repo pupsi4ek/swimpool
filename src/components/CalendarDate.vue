@@ -47,7 +47,7 @@
           <v-container>
             <v-form @submit.prevent="addEvent">
               <WorkoutTypePicker @updateParent="onUpdateType" />
-              <CoachPicker @updateParent='onUpdateCoach'/>
+              <CoachPicker @updateParent="onUpdateCoach" />
               <v-text-field v-model="details" type="text" label="Детали"></v-text-field>
               <v-text-field v-model="date" type="date" label="Дата (обязательно)"></v-text-field>
               <v-row>
@@ -82,12 +82,7 @@
           @click:date="viewDay"
           @change="updateRange"
         ></v-calendar>
-        <v-menu
-          v-model="selectedOpen"
-          :close-on-content-click="false"
-          :activator="selectedElement"
-          offset-x
-        >
+        <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
           <v-card color="dark" min-width="350px" flat>
             <v-toolbar :color="selectedEvent.color" dark>
               <v-btn @click="deleteEvent(selectedEvent.id)" icon>
@@ -99,19 +94,14 @@
             <v-card-text>
               <form v-if="currentlyEditing !== selectedEvent.id" dark>
                 Детали: {{ selectedEvent.details }}
-                <br>
+                <br />
                 Тренер: {{ selectedEvent.coach }}
               </form>
               <form v-else>
-                <textarea-autosize
-                  v-model="selectedEvent.details"
-                  type="text"
-                  style="width: 100%"
-                  :min-height="100"
-                  placeholder="add note">
+                <textarea-autosize v-model="selectedEvent.details" type="text" style="width: 100%" :min-height="100" placeholder="add note">
                 </textarea-autosize>
               </form>
-              <GuestsPicker @updateParent='onUpdateGuest' :startGuests=selectedEvent.guests />
+              <GuestsPicker @updateParent="onUpdateGuest" :startGuests="selectedEvent.guests" :date="selectedEvent.start" />
             </v-card-text>
             <v-card-actions>
               <v-btn text color="secondary" @click="selectedOpen = false">
@@ -132,11 +122,10 @@
 </template>
 
 <script>
-import { db } from '@/main'
-import WorkoutTypePicker from './WorkoutTypePicker'
-import CoachPicker from './CoachPicker'
-import GuestsPicker from './GuestsPicker.vue'
-
+import { db } from '@/main';
+import WorkoutTypePicker from './WorkoutTypePicker';
+import CoachPicker from './CoachPicker';
+import GuestsPicker from './GuestsPicker.vue';
 
 export default {
   components: {
@@ -166,152 +155,167 @@ export default {
     selectedOpen: false,
     events: [],
     dialog: false,
-    coach: null
+    coach: null,
   }),
-  mounted () {
-    this.getEvents()
+  mounted() {
+    this.getEvents();
   },
   computed: {
-    title () {
-      const { start, end } = this
+    title() {
+      const { start, end } = this;
       if (!start || !end) {
-        return ''
+        return '';
       }
-      const startMonth = this.monthFormatter(start)
-      const endMonth = this.monthFormatter(end)
-      const suffixMonth = startMonth === endMonth ? '' : endMonth
-      const startYear = start.year
-      const endYear = end.year
-      const suffixYear = startYear === endYear ? '' : endYear
-      const startDay = start.day + this.nth(start.day)
-      const endDay = end.day + this.nth(end.day)
+      const startMonth = this.monthFormatter(start);
+      const endMonth = this.monthFormatter(end);
+      const suffixMonth = startMonth === endMonth ? '' : endMonth;
+      const startYear = start.year;
+      const endYear = end.year;
+      const suffixYear = startYear === endYear ? '' : endYear;
+      const startDay = start.day + this.nth(start.day);
+      const endDay = end.day + this.nth(end.day);
       switch (this.type) {
         case 'month':
-        return `${startMonth} ${startYear}`
+          return `${startMonth} ${startYear}`;
         case 'week':
         case '4day':
-        return `${startMonth} ${startDay} ${startYear} - ${suffixMonth} ${endDay} ${suffixYear}`
+          return `${startMonth} ${startDay} ${startYear} - ${suffixMonth} ${endDay} ${suffixYear}`;
         case 'day':
-        return `${startMonth} ${startDay} ${startYear}`
+          return `${startMonth} ${startDay} ${startYear}`;
       }
-      return ''
+      return '';
     },
-    monthFormatter () {
+    monthFormatter() {
       return this.$refs.calendar.getFormatter({
-        timeZone: 'UTC', month: 'long',
-      })
-    }
+        timeZone: 'UTC',
+        month: 'long',
+      });
+    },
   },
   methods: {
-    async getEvents () {
-      let snapshot = await db.collection('workouts').get()
-      const events = []
-      snapshot.forEach(doc => {
-        let appData = doc.data()
-        appData.id = doc.id
-        appData.start = doc.data().start.toDate()
-        appData.end = doc.data().end.toDate()
-        events.push(appData)
-      })
-      this.events = events
+    async getEvents() {
+      let snapshot = await db.collection('workouts').get();
+      const events = [];
+      snapshot.forEach((doc) => {
+        let appData = doc.data();
+        appData.id = doc.id;
+        appData.start = this.normalizeDate(doc.data().start.toDate());
+        appData.end = this.normalizeDate(doc.data().end.toDate());
+        events.push(appData);
+      });
+      this.events = events;
     },
-    setDialogDate( { date }) {
-      this.dialogDate = true
-      this.focus = date
+    normalizeDate(date) {
+      let hours = date.getHours();
+      let out = new Date(date.setHours(hours + 3)).toISOString();
+      return out.substr(0, out.length - 5);
     },
-    viewDay ({ date }) {
-      this.focus = date
-      this.type = 'day'
+    setDialogDate({ date }) {
+      this.dialogDate = true;
+      this.focus = date;
     },
-    getEventColor (event) {
-      return event.color
+    viewDay({ date }) {
+      this.focus = date;
+      this.type = 'day';
     },
-    setToday () {
-      this.focus = this.today
+    getEventColor(event) {
+      return event.color;
     },
-    prev () {
-      this.$refs.calendar.prev()
+    setToday() {
+      this.focus = this.today;
     },
-    next () {
-      this.$refs.calendar.next()
+    prev() {
+      this.$refs.calendar.prev();
     },
-    async addEvent () {
+    next() {
+      this.$refs.calendar.next();
+    },
+    async addEvent() {
       if (this.name && this.date && this.start && this.end) {
-        const startTimestamp = this.date + 'T' + this.start;
-        const endTimestamp = this.date + 'T' + this.start;
-        const startDay = new Date(startTimestamp)
-        const endDay = new Date(endTimestamp);
-        // console.log(startTimestamp);
-        await db.collection('workouts').add({
-          name: this.name,
-          coach: this.coach,
-          details: this.details,
-          start: startDay,
-          end: endDay,
-          color: this.color,
-          guests: []
-        })
-        this.getEvents()
-        this.name = '',
-        this.coach = '',
-        this.details = '',
-        this.start = null,
-        this.end = null,
-        this.color = null
+        if (this.start < this.end) {
+          const startTimestamp = this.date + 'T' + this.start;
+          const endTimestamp = this.date + 'T' + this.end;
+          const startDay = new Date(startTimestamp);
+          const endDay = new Date(endTimestamp);
+          await db.collection('workouts').add({
+            name: this.name,
+            coach: this.coach,
+            details: this.details,
+            start: startDay,
+            end: endDay,
+            color: this.color,
+            guests: [],
+          });
+          this.getEvents();
+          (this.name = ''), (this.coach = ''), (this.details = ''), (this.start = null), (this.end = null), (this.color = null);
+        } else {
+          alert('Время начала превышает время окончания!');
+        }
       } else {
-        alert('Пожалуйста, выберите тип тренировки и дату ее проведения')
+        alert('Пожалуйста, выберите тип тренировки и дату ее проведения');
       }
     },
-    editEvent (ev) {
-      this.currentlyEditing = ev.id
+    editEvent(ev) {
+      this.currentlyEditing = ev.id;
     },
-    async updateEvent (ev) {
-      await db.collection('workouts').doc(this.currentlyEditing).update({
-        details: ev.details,
-        guests: ev.guests
-      })
-      this.selectedOpen = false
-      this.currentlyEditing = null
-      this.getEvents()
+    async updateEvent(ev) {
+      await db
+        .collection('workouts')
+        .doc(this.currentlyEditing)
+        .update({
+          details: ev.details,
+          guests: ev.guests,
+        });
+      this.selectedOpen = false;
+      this.currentlyEditing = null;
+      this.getEvents();
     },
-    async deleteEvent (ev) {
-      await db.collection('workouts').doc(ev).delete()
-      this.selectedOpen = false
-      this.getEvents()
+    async deleteEvent(ev) {
+      await db
+        .collection('workouts')
+        .doc(ev)
+        .delete();
+      this.selectedOpen = false;
+      this.getEvents();
     },
-    showEvent ({ nativeEvent, event }) {
+    showEvent({ nativeEvent, event }) {
       const open = () => {
-        this.selectedEvent = event
-        this.selectedElement = nativeEvent.target
-        setTimeout(() => this.selectedOpen = true, 10)
-      }
+        this.selectedEvent = event;
+        this.selectedElement = nativeEvent.target;
+        setTimeout(() => (this.selectedOpen = true), 10);
+      };
       if (this.selectedOpen) {
-        this.selectedOpen = false
-        setTimeout(open, 10)
+        this.selectedOpen = false;
+        setTimeout(open, 10);
       } else {
-        open()
+        open();
       }
-      nativeEvent.stopPropagation()
+      nativeEvent.stopPropagation();
     },
-    updateRange ({ start, end }) {
-      this.start = start
-      this.end = end
+    updateRange({ start, end }) {
+      this.start = start;
+      this.end = end;
     },
-    nth (d) {
-      return d > 3 && d < 21
-      ? 'th'
-      : ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'][d % 10]
+    nth(d) {
+      return d > 3 && d < 21 ? 'th' : ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'][d % 10];
     },
     onUpdateType(data) {
       this.name = data.type;
     },
-    onUpdateCoach(data){
+    onUpdateCoach(data) {
       this.coach = data.coach;
     },
-    async onUpdateGuest(data){
+    async onUpdateGuest(data) {
       this.selectedEvent.guests = data.guest;
-      await db.collection('workouts').doc(this.selectedEvent.id).set(this.selectedEvent)
+      this.selectedEvent.start = new Date(this.selectedEvent.start);
+      this.selectedEvent.end = new Date(this.selectedEvent.end);
+      await db
+        .collection('workouts')
+        .doc(this.selectedEvent.id)
+        .set(this.selectedEvent);
+      this.selectedEvent.start = this.normalizeDate(this.selectedEvent.start);
+      this.selectedEvent.end = this.normalizeDate(this.selectedEvent.end);
     },
-  }
-}
+  },
+};
 </script>

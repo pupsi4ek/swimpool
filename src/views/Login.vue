@@ -21,7 +21,6 @@ export default {
     return {
       email: '',
       pass: '',
-      // dialog: true,
     };
   },
   methods: {
@@ -29,9 +28,9 @@ export default {
       firebase
         .auth()
         .signInWithEmailAndPassword(this.email, this.pass)
-        .then((user) => {
-          console.log(user.uid);
-        })
+        // .then((user) => {
+        //   console.log(user.uid);
+        // })
         .catch((error) => {
           var errorCode = error.code;
           var errorMessage = error.message;
